@@ -5,7 +5,7 @@ import * as z from "zod"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { api } from "@/api/client"
+import { publicApi } from "@/api/client"
 import gridBg from "@/assets/grid.svg"
 
 const loginSchema = z.object({
@@ -26,7 +26,7 @@ export default function Login() {
 
   const onSubmit = async (data: LoginData) => {
     try {
-      const response = await api.post("/autenticacao/login", data)
+      const response = await publicApi.post("/autenticacao/login", data)
 
       const { access_token, refresh_token } = response.data
 
@@ -37,7 +37,7 @@ export default function Login() {
       localStorage.setItem("access_token", access_token)
       localStorage.setItem("refresh_token", refresh_token)
 
-      window.location.href = "/dashboard"
+      window.location.href = "/petslista"
     } catch (err) {
       alert("Usuário ou senha inválidos")
       console.error(err)
