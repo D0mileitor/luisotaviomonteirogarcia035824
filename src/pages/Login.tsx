@@ -5,7 +5,7 @@ import * as z from "zod"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { publicApi } from "@/api/client"
+import { publicApi, saveTokens } from "@/api/client"
 import gridBg from "@/assets/grid.svg"
 
 const loginSchema = z.object({
@@ -28,16 +28,21 @@ export default function Login() {
     try {
       const response = await publicApi.post("/autenticacao/login", data)
 
-      const { access_token, refresh_token } = response.data
+      const { access_token, refresh_token, expires_in, refresh_expires_in } =
+        response.data
 
       if (!access_token) {
         throw new Error("Access token não encontrado na resposta da API")
       }
 
-      localStorage.setItem("access_token", access_token)
-      localStorage.setItem("refresh_token", refresh_token)
+      saveTokens(
+        access_token,
+        refresh_token,
+        expires_in || 300,
+        refresh_expires_in || 1800
+      )
 
-      window.location.href = "/petslista"
+      window.location.href = "/pets"
     } catch (err) {
       alert("Usuário ou senha inválidos")
       console.error(err)
@@ -60,6 +65,11 @@ export default function Login() {
       <div className="w-full max-w-md mx-auto px-4 relative z-10">
         <div className="rounded-lg border border-border bg-card/95 backdrop-blur-sm p-8 shadow-2xl">
         <div className="mb-8 text-center">
+          <img 
+            src="/pet-house.png" 
+            alt="SGP Logo" 
+            className="w-28 h-28 mx-auto mb-4"
+          />
           <h1 className="text-2xl font-bold text-foreground mb-2">
             Bem-vindo ao S.G.P - MT
           </h1>

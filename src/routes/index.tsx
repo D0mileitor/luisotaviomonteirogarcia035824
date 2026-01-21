@@ -6,8 +6,8 @@ export function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/petslista" element={<PetsLista />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/pets" element={<PetsLista />} />
       </Routes>
     </BrowserRouter>
   )
