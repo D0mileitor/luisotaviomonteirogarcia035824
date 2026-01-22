@@ -1,4 +1,5 @@
 import { PageContainer } from "./PageContainer"
+import { Navbar } from "./Navbar"
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -7,9 +8,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
-      <header className="h-14 w-full border-b bg-white flex items-center px-4">
-        <h1 className="text-sm font-semibold">Sistema</h1>
-      </header>
+      <Navbar />
 
       <PageContainer>
         {children}

@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { AppRoutes } from "./routes"
 import { initializeTokenRefresh } from "@/api/client"
+import { ThemeProvider } from "@/contexts/ThemeContext"
 
 export default function App() {
   useEffect(() => {
@@ -8,5 +9,9 @@ export default function App() {
     initializeTokenRefresh()
   }, [])
 
-  return <AppRoutes />
+  return (
+    <ThemeProvider>
+      <AppRoutes />
+    </ThemeProvider>
+  )
 }

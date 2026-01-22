@@ -9,6 +9,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Mail, Phone, MapPin, ArrowLeft, Users, Pencil } from "lucide-react"
 import { PetFormDialog } from "@/components/pet/PetFormDialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export default function PetDetail() {
   const { id } = useParams()
@@ -66,24 +72,15 @@ export default function PetDetail() {
   }
 
   return (
-    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Voltar</span>
-            </Button>
+    <TooltipProvider>
+      <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 space-y-4">
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              Detalhes do Pet
+            </h1>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
-            Detalhes do Pet
-          </h1>
-        </div>
 
         {loading && (
           <div className="flex items-center justify-center py-20">
@@ -96,18 +93,40 @@ export default function PetDetail() {
             {/* Card Principal do Pet */}
             <Card className="overflow-hidden shadow-lg">
               <div className="bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 px-4 py-4 border-b flex items-center justify-between">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate(-1)}
+                      className="flex items-center gap-2"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span className="hidden sm:inline">Voltar</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Retornar à página anterior</p>
+                  </TooltipContent>
+                </Tooltip>
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-white">
                   {pet.nome}
                 </h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditDialogOpen(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Pencil className="w-4 h-4" />
-                  <span className="hidden sm:inline">Editar</span>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditDialogOpen(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span className="hidden sm:inline">Editar</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Editar informações do pet</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <CardContent className="p-4 sm:p-6 lg:p-8">
@@ -252,5 +271,6 @@ export default function PetDetail() {
         />
       </div>
     </div>
+    </TooltipProvider>
   )
 }

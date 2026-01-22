@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { createPet, updatePet, uploadPetPhoto, deletePetPhoto, type Pet, type CreatePetData } from "@/api/pets"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload, X } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface PetFormDialogProps {
   open: boolean
@@ -244,6 +245,7 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
           </DialogDescription>
         </DialogHeader>
 
+        <TooltipProvider>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Upload de Foto */}
@@ -259,15 +261,22 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
                       alt="Preview"
                       className="w-32 h-32 object-cover rounded-lg border-2 border-slate-200"
                     />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                      onClick={removePhoto}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                          onClick={removePhoto}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Remover foto</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 ) : (
                   <div className="w-32 h-32 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center">
@@ -354,21 +363,36 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
             />
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {pet ? "Atualizar" : "Criar"}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onOpenChange(false)}
+                    disabled={isSubmitting}
+                  >
+                    Cancelar
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fechar sem salvar alterações</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {pet ? "Atualizar" : "Criar"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{pet ? "Salvar alterações do pet" : "Cadastrar novo pet"}</p>
+                </TooltipContent>
+              </Tooltip>
             </DialogFooter>
           </form>
         </Form>
+        </TooltipProvider>
       </DialogContent>
     </Dialog>
   )

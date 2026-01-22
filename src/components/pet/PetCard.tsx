@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface PetCardProps {
   pet: Pet
@@ -22,11 +23,11 @@ export function PetCard({ pet }: PetCardProps) {
 
   return (
     <Card
-      className="overflow-hidden transition-all duration-300 hover:shadow-lg border-slate-200"
+      className="overflow-hidden transition-all duration-300 hover:shadow-lg"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br dark:from-slate-800 dark:to-slate-900">
+      <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
         <img
           src={pet.foto?.url || "/petSemfoto.png"}
           alt={pet.nome}
@@ -35,7 +36,7 @@ export function PetCard({ pet }: PetCardProps) {
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-semibold text-slate-100">
+        <CardTitle className="text-xl font-semibold">
           {pet.nome}
         </CardTitle>
       </CardHeader>
@@ -43,22 +44,29 @@ export function PetCard({ pet }: PetCardProps) {
       <CardContent className="space-y-3 pb-4">
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-slate-100 min-w-[60px]">Raça:</span>
-            <span className="text-slate-400">{pet.raca}</span>
+            <span className="font-medium min-w-[60px]">Raça:</span>
+            <span className="text-muted-foreground">{pet.raca}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-medium text-slate-100 min-w-[60px]">Idade:</span>
-            <span className="text-slate-400">{pet.idade} anos</span>
+            <span className="font-medium min-w-[60px]">Idade:</span>
+            <span className="text-muted-foreground">{pet.idade} anos</span>
           </div>
         </div>
 
-        <Button
-          onClick={handleDetailsClick}
-          variant="outline"
-          className="w-full mt-4 transition-colors"
-        >
-          Ver detalhes
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={handleDetailsClick}
+              variant="outline"
+              className="w-full mt-4 transition-colors"
+            >
+              Ver detalhes
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Ver informações completas do pet</p>
+          </TooltipContent>
+        </Tooltip>
       </CardContent>
     </Card>
   )
