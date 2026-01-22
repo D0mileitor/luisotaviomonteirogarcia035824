@@ -50,36 +50,38 @@ export default function PetsLista() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Pets cadastrados</h1>
+    <div className="flex flex-col min-h-screen p-6">
+      <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Pets cadastrados</h1>
 
-      {/* Busca */}
-      <Input
-        placeholder="Buscar por nome..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-sm"
-      />
+        {/* Busca */}
+        <Input
+          placeholder="Buscar por nome..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-sm"
+        />
 
-      {loading && <p>Carregando pets...</p>}
+        {loading && <p>Carregando pets...</p>}
 
-      {filteredPets.length === 0 && search && (
-        <div className="mt-10 text-center">
-          <p className="text-muted-foreground">
-            Nenhum pet encontrado com esse nome.
-          </p>
+        {filteredPets.length === 0 && search && (
+          <div className="mt-10 text-center">
+            <p className="text-muted-foreground">
+              Nenhum pet encontrado com esse nome.
+            </p>
+          </div>
+        )}
+
+        {/* Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-6">
+          {filteredPets.map((pet) => (
+            <PetCard key={pet.id} pet={pet} />
+          ))}
         </div>
-      )}
-
-      {/* Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-        {filteredPets.map((pet) => (
-          <PetCard key={pet.id} pet={pet} />
-        ))}
       </div>
 
       {/* Paginação */}
-      <div className="flex justify-center gap-2">
+      <div className="mt-auto pt-6 pb-4 flex justify-center gap-2">
         <Button
           variant="outline"
           disabled={page === 0}
