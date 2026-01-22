@@ -4,6 +4,8 @@ import type { Pet } from "@/api/pets"
 import { PetCard } from "@/components/pet/PetCard"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { PetFormDialog } from "@/components/pet/PetFormDialog"
+import { Plus } from "lucide-react"
 
 const ITEMS_PER_PAGE = 10
 
@@ -13,6 +15,7 @@ export default function PetsLista() {
   const [page, setPage] = useState(0)
   const [pageCount, setPageCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   useEffect(() => {
     async function loadPets() {
@@ -34,6 +37,17 @@ export default function PetsLista() {
     loadPets()
   }, [page])
 
+  const handleCreateSuccess = async () => {
+    // Recarregar a lista de pets após criar um novo
+    try {
+      const data = await getPets(page, ITEMS_PER_PAGE)
+      setPets(data.content)
+      setPageCount(data.pageCount)
+    } catch (error) {
+      console.error("Erro ao recarregar pets:", error)
+    }
+  }
+
   const filteredPets = pets.filter((pet) =>
     pet.nome.toLowerCase().includes(search.toLowerCase())
   )
@@ -52,7 +66,16 @@ export default function PetsLista() {
   return (
     <div className="flex flex-col min-h-screen p-6">
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Pets cadastrados</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">Pets cadastrados</h1>
+          <Button
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Novo Pet
+          </Button>
+        </div>
 
         {/* Busca */}
         <Input
@@ -102,6 +125,14 @@ export default function PetsLista() {
           Próxima
         </Button>
       </div>
+
+      {/* Dialog de Criação */}
+      <PetFormDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        pet={null}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   )
 }

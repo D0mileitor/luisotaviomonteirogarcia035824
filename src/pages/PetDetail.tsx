@@ -7,7 +7,8 @@ import {
   CardContent
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Mail, Phone, MapPin, ArrowLeft, Users } from "lucide-react"
+import { Mail, Phone, MapPin, ArrowLeft, Users, Pencil } from "lucide-react"
+import { PetFormDialog } from "@/components/pet/PetFormDialog"
 
 export default function PetDetail() {
   const { id } = useParams()
@@ -15,6 +16,7 @@ export default function PetDetail() {
   const [pet, setPet] = useState<Pet | null>(null)
   const [tutores, setTutores] = useState<Tutor[] | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -51,22 +53,36 @@ export default function PetDetail() {
     load()
   }, [id])
 
+  const handleEditSuccess = async () => {
+    // Recarregar dados do pet após edição
+    if (id) {
+      try {
+        const data = await getPetById(Number(id))
+        setPet(data)
+      } catch (error) {
+        console.error("Erro ao recarregar pet:", error)
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Voltar</span>
+            </Button>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
             Detalhes do Pet
           </h1>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Voltar</span>
-          </Button>
         </div>
 
         {loading && (
@@ -79,17 +95,26 @@ export default function PetDetail() {
           <div className="space-y-6">
             {/* Card Principal do Pet */}
             <Card className="overflow-hidden shadow-lg">
-              <div className="bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 px-6 py-8 border-b">
+              <div className="bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 px-4 py-4 border-b flex items-center justify-between">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 dark:text-white">
                   {pet.nome}
                 </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span className="hidden sm:inline">Editar</span>
+                </Button>
               </div>
 
               <CardContent className="p-4 sm:p-6 lg:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="flex flex-col items-center space-y-6">
                   {/* Foto do Pet */}
-                  <div className="lg:col-span-1 flex justify-center">
-                    <div className="relative w-full max-w-sm aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 shadow-inner">
+                  <div className="w-full max-w-md">
+                    <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 shadow-inner">
                       <img 
                         src={pet.foto?.url || "/petSemfoto.png"} 
                         alt={pet.nome} 
@@ -99,7 +124,7 @@ export default function PetDetail() {
                   </div>
 
                   {/* Informações do Pet */}
-                  <div className="lg:col-span-1 flex flex-col space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
                     <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900/20 dark:to-zinc-800/20 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700">
                       <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium mb-1">Raça</p>
                       <p className="text-xl font-bold text-slate-800 dark:text-white">{pet.raca}</p>
@@ -217,6 +242,14 @@ export default function PetDetail() {
             </Card>
           </div>
         )}
+
+        {/* Dialog de Edição */}
+        <PetFormDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          pet={pet}
+          onSuccess={handleEditSuccess}
+        />
       </div>
     </div>
   )

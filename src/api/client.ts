@@ -58,7 +58,6 @@ const scheduleTokenRefresh = (expiresIn: number) => {
   const refreshTime = Math.max(expiresIn - 30, expiresIn * 0.9)
   const refreshDelay = refreshTime * 1000
 
-  console.log(`Token será renovado em ${refreshTime} segundos`)
 
   refreshTimer = setTimeout(async () => {
     await refreshAccessToken()
@@ -74,7 +73,6 @@ const refreshAccessToken = async () => {
 
   // Verifica se o refresh token expirou
   if (refreshExpiresAt && Date.now() >= parseInt(refreshExpiresAt)) {
-    console.log("Refresh token expirado, redirecionando para login")
     localStorage.clear()
     window.location.href = "/login"
     return
@@ -89,7 +87,6 @@ const refreshAccessToken = async () => {
   isRefreshing = true
 
   try {
-    console.log("Renovando access token...")
     const response = await publicApi.put("/autenticacao/refresh", null, {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
@@ -103,7 +100,6 @@ const refreshAccessToken = async () => {
 
     api.defaults.headers.common.Authorization = `Bearer ${access_token}`
 
-    console.log("Token renovado com sucesso")
     processQueue(null, access_token)
   } catch (error) {
     console.error("Erro ao renovar token:", error)
