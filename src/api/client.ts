@@ -1,4 +1,5 @@
 import axios from "axios"
+import { any } from "zod"
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -58,7 +59,6 @@ const scheduleTokenRefresh = (expiresIn: number) => {
   const refreshTime = Math.max(expiresIn - 30, expiresIn * 0.9)
   const refreshDelay = refreshTime * 1000
 
-
   refreshTimer = setTimeout(async () => {
     await refreshAccessToken()
   }, refreshDelay)
@@ -66,8 +66,9 @@ const scheduleTokenRefresh = (expiresIn: number) => {
 
 // Função para renovar o access token
 const refreshAccessToken = async () => {
-  if (isRefreshing) return
-
+  if (isRefreshing) {
+    return
+  }
   const refreshToken = localStorage.getItem("refresh_token")
   const refreshExpiresAt = localStorage.getItem("refresh_expires_at")
 
@@ -87,12 +88,15 @@ const refreshAccessToken = async () => {
   isRefreshing = true
 
   try {
-    const response = await publicApi.put("/autenticacao/refresh", null, {
-      headers: {
-        Authorization: `Bearer ${refreshToken}`,
-      },
-    })
-
+    const response = await publicApi.put("/autenticacao/refresh", 
+      {}, 
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
     const { access_token, refresh_token, expires_in, refresh_expires_in } =
       response.data
 
@@ -101,8 +105,12 @@ const refreshAccessToken = async () => {
     api.defaults.headers.common.Authorization = `Bearer ${access_token}`
 
     processQueue(null, access_token)
-  } catch (error) {
-    console.error("Erro ao renovar token:", error)
+  } catch (error: any) {
+    console.error("❌ Erro ao renovar token:", {
+      error,
+      response: error?.response?.data,
+      status: error?.response?.status
+    })
     processQueue(error as Error, null)
     localStorage.clear()
     window.location.href = "/login"
@@ -114,7 +122,9 @@ const refreshAccessToken = async () => {
 // Inicializa renovação automática se já tiver token
 export const initializeTokenRefresh = () => {
   const expiresAt = localStorage.getItem("token_expires_at")
-  if (!expiresAt) return
+  if (!expiresAt) {
+    return
+  }
 
   const now = Date.now()
   const expiresAtNum = parseInt(expiresAt)
@@ -134,6 +144,8 @@ api.interceptors.request.use((config) => {
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  } else {
+    console.warn("⚠️ Requisição sem token:", config.url)
   }
 
   return config
@@ -141,17 +153,17 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor para renovar token automaticamente
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response
+  },
   async (error) => {
     const originalRequest = error.config
 
-    
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error)
     }
 
     if (isRefreshing) {
-      
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })
       })
@@ -159,7 +171,10 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${token}`
           return api(originalRequest)
         })
-        .catch((err) => Promise.reject(err))
+        .catch((err) => {
+          console.error("❌ Erro ao reprocessar requisição:", err)
+          return Promise.reject(err)
+        })
     }
 
     originalRequest._retry = true
@@ -168,7 +183,7 @@ api.interceptors.response.use(
     const refreshToken = localStorage.getItem("refresh_token")
 
     if (!refreshToken) {
-      // Sem refresh token, redireciona para login
+      console.error("❌ Sem refresh token! Redirecionando para login...")
       localStorage.clear()
       window.location.href = "/login"
       return Promise.reject(error)
@@ -192,7 +207,12 @@ api.interceptors.response.use(
       processQueue(null, access_token)
 
       return api(originalRequest)
-    } catch (refreshError) {
+    } catch (refreshError: any) {
+      console.error("❌ Falha ao renovar token após 401:", {
+        error: refreshError,
+        response: refreshError?.response?.data,
+        status: refreshError?.response?.status
+      })
       processQueue(refreshError as Error, null)
       localStorage.clear()
       window.location.href = "/login"

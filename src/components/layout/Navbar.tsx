@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { LogOut, Moon, Sun, PawPrint } from "lucide-react"
+import { LogOut, Moon, Sun, PawPrint, Users } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useTheme } from "@/contexts/ThemeContext"
 import {
@@ -26,6 +26,7 @@ export function Navbar() {
   }
 
   const isPetsPage = location.pathname.startsWith("/pets")
+  const isTutoresPage = location.pathname.startsWith("/tutores")
 
   return (
     <TooltipProvider>
@@ -60,6 +61,25 @@ export function Navbar() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Ver lista de pets cadastrados</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => navigate("/tutores")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isTutoresPage 
+                      ? "bg-accent text-accent-foreground" 
+                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  Tutores
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver lista de tutores cadastrados</p>
               </TooltipContent>
             </Tooltip>
           </nav>

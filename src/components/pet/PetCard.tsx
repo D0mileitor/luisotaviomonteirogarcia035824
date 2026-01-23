@@ -21,6 +21,12 @@ export function PetCard({ pet }: PetCardProps) {
     navigate(`/pets/${pet.id}`)
   }
 
+  // Função para truncar texto
+  const truncateText = (text: string, maxLength: number = 20): string => {
+    if (text.length <= maxLength) return text
+    return text.slice(0, maxLength) + '...'
+  }
+
   return (
     <Card
       className="overflow-hidden transition-all duration-300 hover:shadow-lg"
@@ -36,17 +42,35 @@ export function PetCard({ pet }: PetCardProps) {
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-semibold">
-          {pet.nome}
-        </CardTitle>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <CardTitle className="text-xl font-semibold truncate">
+              {truncateText(pet.nome, 20)}
+            </CardTitle>
+          </TooltipTrigger>
+          {pet.nome.length > 20 && (
+            <TooltipContent>
+              <p>{pet.nome}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
       </CardHeader>
 
       <CardContent className="space-y-3 pb-4">
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="font-medium min-w-[60px]">Raça:</span>
-            <span className="text-muted-foreground">{pet.raca}</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2">
+                <span className="font-medium min-w-[60px]">Raça:</span>
+                <span className="text-muted-foreground truncate">{truncateText(pet.raca, 15)}</span>
+              </div>
+            </TooltipTrigger>
+            {pet.raca.length > 15 && (
+              <TooltipContent>
+                <p>{pet.raca}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
           <div className="flex items-center gap-2">
             <span className="font-medium min-w-[60px]">Idade:</span>
             <span className="text-muted-foreground">{pet.idade} anos</span>
