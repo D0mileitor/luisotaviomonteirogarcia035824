@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Login from "@/pages/Login"
-import PetsLista from "@/pages/PetsLista"
-import PetDetail from "@/pages/PetDetail"
+import PetsLista from "@/components/pet/PetsLista"
+import PetDetail from "@/components/pet/PetDetail"
 import { AppLayout } from "@/components/layout/AppLayout"
 
 export function AppRoutes() {
