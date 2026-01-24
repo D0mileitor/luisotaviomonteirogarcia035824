@@ -69,10 +69,6 @@ export default function TutorDetail() {
   const handleEditSuccess = async () => {
     await loadTutor()
   }
-  const truncateText = (text: string, maxLength: number = 20): string => {
-    if (text.length <= maxLength) return text
-    return text.slice(0, maxLength) + '...'
-  }
 
   const formatPhoneNumber = (phone: string): string => {
     // Remove tudo que não é número
