@@ -9,7 +9,7 @@ export const publicApi = axios.create({
 })
 
 let isRefreshing = false
-let refreshTimer: number | null = null
+let refreshTimer: ReturnType<typeof setTimeout> | null = null
 
 let failedQueue: Array<{
   resolve: (value?: unknown) => void
