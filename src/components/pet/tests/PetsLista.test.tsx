@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
-import PetsLista from './PetsLista'
+import PetsLista from '../PetsLista'
 import * as petsApi from '@/api/pets'
 import type { PetsResponse } from '@/api/pets'
 
