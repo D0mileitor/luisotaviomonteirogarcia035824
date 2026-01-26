@@ -5,13 +5,18 @@ import { TutorCard } from "@/components/tutores/TutorCard"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { TutorFormDialog } from "@/components/tutores/TutorFormDialog"
-import { Plus } from "lucide-react"
+import { Plus, ChevronDown } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 const ITEMS_PER_PAGE = 10
 
@@ -22,6 +27,7 @@ export default function TutoresLista() {
   const [pageCount, setPageCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   useEffect(() => {
     async function loadTutores() {
@@ -55,25 +61,30 @@ export default function TutoresLista() {
 
   // Função de filtragem unificada
   const filteredTutores = useMemo(() => {
-    if (!search.trim()) return tutores
-
-    const searchLower = search.toLowerCase().trim()
+    let filtered = tutores
     
-    return tutores.filter((tutor) => {
-      // Busca por nome
-      const matchNome = tutor.nome.toLowerCase().includes(searchLower)
+    if (search.trim()) {
+      const searchLower = search.toLowerCase().trim()
       
-      // Busca por telefone
-      const matchTelefone = tutor.telefone && tutor.telefone.toLowerCase().includes(searchLower)
-      
-      // Busca por endereço
-      const matchEndereco = tutor.endereco && tutor.endereco.toLowerCase().includes(searchLower)
-      
-      // Busca por email
-      const matchEmail = tutor.email && tutor.email.toLowerCase().includes(searchLower)
-      
-      return matchNome || matchTelefone || matchEndereco || matchEmail
-    })
+      filtered = tutores.filter((tutor) => {
+        // Busca por nome
+        const matchNome = tutor.nome.toLowerCase().includes(searchLower)
+        
+        // Busca por telefone
+        const matchTelefone = tutor.telefone && tutor.telefone.toLowerCase().includes(searchLower)
+        
+        // Busca por endereço
+        const matchEndereco = tutor.endereco && tutor.endereco.toLowerCase().includes(searchLower)
+        
+        // Busca por email
+        const matchEmail = tutor.email && tutor.email.toLowerCase().includes(searchLower)
+        
+        return matchNome || matchTelefone || matchEndereco || matchEmail
+      })
+    }
+    
+    // Ordenar alfabeticamente por nome
+    return filtered.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }))
   }, [tutores, search])
 
   // Mostrar tela vazia apenas quando realmente não há tutores no sistema
@@ -111,17 +122,35 @@ export default function TutoresLista() {
           </div>
 
         {/* Filtros */}
-        <div className="p-4 space-y-4 bg-card">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Buscar Tutor</label>
-            <Input
-              placeholder="Buscar por nome, telefone, email ou endereço..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="max-w-xl"
-            />
+        <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <div className="border rounded-lg bg-card">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-between p-4 bg-white dark:bg-accent hover:bg-accent/60"
+              >
+                <h2 className="text-lg font-semibold text-black dark:text-white">Filtros</h2>
+                <ChevronDown className={`w-5 h-5 transition-transform ${
+                  isFilterOpen ? "transform rotate-180" : ""
+                }`} />
+              </Button>
+            </CollapsibleTrigger>
+
+            <CollapsibleContent>
+              <div className="p-4 pt-0 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Buscar Tutor</label>
+                  <Input
+                    placeholder="Buscar por nome, telefone, email ou endereço..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="max-w-xl"
+                  />
+                </div>
+              </div>
+            </CollapsibleContent>
           </div>
-        </div>
+        </Collapsible>
 
         {loading && <p>Carregando tutores...</p>}
 

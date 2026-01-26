@@ -295,7 +295,7 @@ export function TutorFormDialog({ open, onOpenChange, tutor, onSuccess }: TutorF
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle>{tutor ? "Editar Tutor" : "Novo Tutor"}</DialogTitle>
           <DialogDescription>

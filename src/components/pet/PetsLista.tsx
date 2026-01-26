@@ -5,7 +5,7 @@ import { PetCard } from "@/components/pet/PetCard"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { PetFormDialog } from "@/components/pet/PetFormDialog"
-import { Plus, X } from "lucide-react"
+import { Plus, X, ChevronDown } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -19,6 +19,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 const ITEMS_PER_PAGE = 10
 
@@ -29,6 +34,7 @@ export default function PetsLista() {
   const [pageCount, setPageCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   
   // Estados dos filtros
   const [racaFiltro, setRacaFiltro] = useState<string>("")
@@ -81,7 +87,7 @@ export default function PetsLista() {
 
   // Função de filtragem completa
   const filteredPets = useMemo(() => {
-    return pets.filter((pet) => {
+    const filtered = pets.filter((pet) => {
       // Filtro por nome
       const matchNome = pet.nome.toLowerCase().includes(search.toLowerCase())
       
@@ -93,6 +99,9 @@ export default function PetsLista() {
       
       return matchNome && matchRaca && matchIdade
     })
+    
+    // Ordenar alfabeticamente por nome melhora de usabilidade
+    return filtered.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }))
   }, [pets, search, racaFiltro, idadeFiltro])
 
   // Função para limpar filtros
@@ -138,115 +147,141 @@ export default function PetsLista() {
           </div>
 
         {/* Filtros */}
-        <div className="border rounded-lg p-4 space-y-4 bg-card">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Filtros</h2>
-            {temFiltrosAtivos && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={limparFiltros}
-                    className="flex items-center gap-2"
-                  >
-                    <X className="w-4 h-4" />
-                    Limpar filtros
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Remover todos os filtros aplicados</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
+        <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <div className="border rounded-lg bg-white dark:bg-card">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-between p-4 bg-white dark:bg-accent hover:bg-accent/60"
+              >
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-black dark:text-white">Filtros</h2>
+                  {temFiltrosAtivos && (
+                    <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                      Ativos
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {temFiltrosAtivos && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            limparFiltros()
+                          }}
+                          className="flex items-center gap-2 bg-white dark:bg-transparent dark:text-white"
+                        >
+                          <X className="w-4 h-4" />
+                          <span className="hidden sm:inline">Limpar</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Remover todos os filtros aplicados</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  <ChevronDown className={`w-5 h-5 transition-transform ${
+                    isFilterOpen ? "transform rotate-180" : ""
+                  }`} />
+                </div>
+              </Button>
+            </CollapsibleTrigger>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {/* Busca por nome */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
-              <Input
-                placeholder="Buscar por nome..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+            <CollapsibleContent>
+              <div className="p-4 pt-0 space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  {/* Busca por nome */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Nome</label>
+                    <Input
+                      placeholder="Buscar por nome..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </div>
 
-            {/* Filtro de Raça */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Raça</label>
-                {racaFiltro && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setRacaFiltro("")}
-                        className="h-auto p-1 text-xs"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Limpar filtro de raça</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+                  {/* Filtro de Raça */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Raça</label>
+                      {racaFiltro && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setRacaFiltro("")}
+                              className="h-auto p-1 text-xs"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Limpar filtro de raça</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                    <Select value={racaFiltro} onValueChange={setRacaFiltro}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todas as raças" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {racasDisponiveis.map((raca) => (
+                          <SelectItem key={raca} value={raca}>
+                            <span className="truncate block max-w-[250px]" title={raca}>
+                              {raca.length > 30 ? `${raca.substring(0, 30)}...` : raca}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Filtro de Idade */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Idade</label>
+                      {idadeFiltro && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setIdadeFiltro("")}
+                              className="h-auto p-1 text-xs"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Limpar filtro de idade</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                    <Select value={idadeFiltro} onValueChange={setIdadeFiltro}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todas as idades" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {idadesDisponiveis.map((idade) => (
+                          <SelectItem key={idade} value={idade.toString()}>
+                            {idade} {idade === 1 ? "ano" : "anos"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-              <Select value={racaFiltro} onValueChange={setRacaFiltro}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas as raças" />
-                </SelectTrigger>
-                <SelectContent>
-                  {racasDisponiveis.map((raca) => (
-                    <SelectItem key={raca} value={raca}>
-                      <span className="truncate block max-w-[250px]" title={raca}>
-                        {raca.length > 30 ? `${raca.substring(0, 30)}...` : raca}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Filtro de Idade */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Idade</label>
-                {idadeFiltro && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIdadeFiltro("")}
-                        className="h-auto p-1 text-xs"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Limpar filtro de idade</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-              <Select value={idadeFiltro} onValueChange={setIdadeFiltro}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas as idades" />
-                </SelectTrigger>
-                <SelectContent>
-                  {idadesDisponiveis.map((idade) => (
-                    <SelectItem key={idade} value={idade.toString()}>
-                      {idade} {idade === 1 ? "ano" : "anos"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            </CollapsibleContent>
           </div>
-        </div>
+        </Collapsible>
 
         {loading && <p>Carregando pets...</p>}
 

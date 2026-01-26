@@ -50,21 +50,11 @@ export function TutorCard({ tutor }: TutorCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-        {tutor.foto?.url ? (
-          <img
-            src={tutor.foto.url}
-            alt={tutor.nome}
-            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center">
-              <span className="text-white text-5xl font-bold">
-                {tutor.nome.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          </div>
-        )}
+        <img
+          src={tutor.foto?.url || "/userSemfoto.png"} 
+          alt={tutor.nome}
+          className="h-full w-full object-contain transition-transform duration-300 hover:scale-105"
+        />
       </div>
 
       <CardHeader className="pb-3">

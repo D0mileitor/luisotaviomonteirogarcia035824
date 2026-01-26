@@ -220,21 +220,11 @@ export default function TutorDetail() {
                   {/* Foto do Tutor */}
                   <div className="w-full max-w-md">
                     <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 shadow-inner">
-                      {tutor.foto?.url ? (
-                        <img 
-                          src={tutor.foto.url} 
-                          alt={tutor.nome} 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className="w-64 h-64 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center">
-                            <span className="text-white text-9xl font-bold">
-                              {tutor.nome.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                      <img 
+                        src={tutor.foto?.url || "/userSemfoto.png"} 
+                        alt={tutor.nome} 
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                   </div>
 

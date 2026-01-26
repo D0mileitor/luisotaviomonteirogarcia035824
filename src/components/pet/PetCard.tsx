@@ -35,7 +35,7 @@ export function PetCard({ pet }: PetCardProps) {
     >
       <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
         <img
-          src={pet.foto?.url || "/petSemfoto.png"}
+          src={pet.foto?.url || "/petSemfoto.png"} 
           alt={pet.nome}
           className="h-full w-full object-contain transition-transform duration-300 hover:scale-105"
         />
