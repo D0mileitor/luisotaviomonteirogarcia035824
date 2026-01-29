@@ -343,7 +343,9 @@ describe("TutorDetail", () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText("J")).toBeInTheDocument() // Primeira letra do nome
+      const img = screen.getByAltText("João Silva")
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute("src", "/userSemfoto.png") // Imagem padrão quando não há foto
     })
   })
 

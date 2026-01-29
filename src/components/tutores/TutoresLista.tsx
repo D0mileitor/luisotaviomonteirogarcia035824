@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react"
-import { getTutores } from "@/api/tutores"
+import { tutoresFacade } from "@/services/tutoresFacade"
 import type { Tutor } from "@/api/tutores"
 import { TutorCard } from "@/components/tutores/TutorCard"
 import { Input } from "@/components/ui/input"
@@ -29,34 +29,24 @@ export default function TutoresLista() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
+  // Subscrever ao BehaviorSubject do facade
   useEffect(() => {
-    async function loadTutores() {
-      setLoading(true)
-
-      try {
-        const data = await getTutores(page, ITEMS_PER_PAGE)
-
-        setTutores(data.content)
-        setPageCount(data.pageCount)
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadTutores()
-  }, [page])
-
-  const handleCreateSuccess = async () => {
-    // Recarregar a lista de tutores após criar um novo
-    try {
-      const data = await getTutores(page, ITEMS_PER_PAGE)
+    const subscription = tutoresFacade.tutores$.subscribe((data) => {
       setTutores(data.content)
       setPageCount(data.pageCount)
-    } catch (error) {
-      console.error("Erro ao recarregar tutores:", error)
-    }
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Carregar tutores quando a página mudar
+  useEffect(() => {
+    tutoresFacade.loadTutores(page, ITEMS_PER_PAGE)
+  }, [page])
+
+  const handleCreateSuccess = () => {
+    // O facade já recarrega automaticamente após criar
   }
 
   // Função de filtragem unificada

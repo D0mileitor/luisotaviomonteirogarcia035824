@@ -18,7 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { createTutor, updateTutor, uploadTutorPhoto, deleteTutorPhoto, type Tutor, type CreateTutorData } from "@/api/tutores"
+import { tutoresFacade } from "@/services/tutoresFacade"
+import type { Tutor, CreateTutorData } from "@/api/tutores"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload, X } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -226,12 +227,12 @@ export function TutorFormDialog({ open, onOpenChange, tutor, onSuccess }: TutorF
 
       if (tutor) {
         // Atualizar tutor existente
-        savedTutor = await updateTutor(tutor.id, sanitizedData)
+        savedTutor = await tutoresFacade.updateTutor(tutor.id, sanitizedData)
         
         // Deletar foto se o usuário removeu
         if (photoRemoved && tutor.foto?.id) {
           try {
-            await deleteTutorPhoto(tutor.id, tutor.foto.id)
+            await tutoresFacade.deleteTutorPhoto(tutor.id, tutor.foto.id)
             toast({
               title: "Sucesso",
               description: "Foto removida com sucesso!",
@@ -252,7 +253,7 @@ export function TutorFormDialog({ open, onOpenChange, tutor, onSuccess }: TutorF
         })
       } else {
         // Criar novo tutor
-        savedTutor = await createTutor(sanitizedData)
+        savedTutor = await tutoresFacade.createTutor(sanitizedData)
         toast({
           title: "Sucesso",
           description: "Tutor criado com sucesso!",
@@ -262,7 +263,7 @@ export function TutorFormDialog({ open, onOpenChange, tutor, onSuccess }: TutorF
       // Upload de foto se houver
       if (selectedFile && savedTutor.id) {
         try {
-          await uploadTutorPhoto(savedTutor.id, selectedFile)
+          await tutoresFacade.uploadTutorPhoto(savedTutor.id, selectedFile)
           toast({
             title: "Sucesso",
             description: "Foto enviada com sucesso!",

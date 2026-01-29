@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { getPetById, type Pet } from "@/api/pets"
-import { getTutorById, type Tutor } from "@/api/tutores"
+import { petsFacade } from "@/services/petFacade"
+import { tutoresFacade } from "@/services/tutoresFacade"
+import type { Pet } from "@/api/pets"
+import type { Tutor } from "@/api/tutores"
 import {
   Card,
   CardContent
@@ -30,19 +32,19 @@ export default function PetDetail() {
     async function load() {
       setLoading(true)
       try {
-        const data = await getPetById(Number(id))
+        const data = await petsFacade.getPetById(Number(id))
         setPet(data)
 
-        // If API already returns tutor details, prefer them; otherwise fetch individually
+        
         if (data.tutores && data.tutores.length > 0) {
           const needFetch = data.tutores.some((t) => !t.email && !t.telefone && !t.endereco)
 
           if (needFetch) {
-            const promises = data.tutores.map((t) => getTutorById(t.id))
+            const promises = data.tutores.map((t) => tutoresFacade.getTutorById(t.id))
             const detailed = await Promise.all(promises)
             setTutores(detailed)
           } else {
-            // cast to Tutor[] since shapes are compatible
+            
             setTutores(data.tutores as Tutor[])
           }
         } else {
@@ -63,7 +65,7 @@ export default function PetDetail() {
     // Recarregar dados do pet após edição
     if (id) {
       try {
-        const data = await getPetById(Number(id))
+        const data = await petsFacade.getPetById(Number(id))
         setPet(data)
       } catch (error) {
         console.error("Erro ao recarregar pet:", error)

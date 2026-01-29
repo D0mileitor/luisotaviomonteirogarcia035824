@@ -18,6 +18,11 @@ vi.mock('react-router-dom', async () => {
 // Mock do módulo de pets API
 vi.mock('@/api/pets', () => ({
   getPets: vi.fn(),
+  createPet: vi.fn(),
+  updatePet: vi.fn(),
+  uploadPetPhoto: vi.fn(),
+  deletePetPhoto: vi.fn(),
+  getPetById: vi.fn(),
 }))
 
 // Helper para renderizar com Router
@@ -171,8 +176,12 @@ describe('PetsLista', () => {
     expect(screen.getByText('Bella')).toBeInTheDocument()
     expect(screen.getByText('Luna')).toBeInTheDocument()
 
+    // Abrir o collapsible de filtros
+    const filtrosButton = screen.getByRole('button', { name: /filtros/i })
+    await user.click(filtrosButton)
+
     // Digitar no campo de busca
-    const searchInput = screen.getByPlaceholderText('Buscar por nome...')
+    const searchInput = await screen.findByPlaceholderText('Buscar por nome...')
     await user.type(searchInput, 'Rex')
 
     // Verificar que apenas Rex está visível
@@ -212,8 +221,12 @@ describe('PetsLista', () => {
     expect(screen.getByText('Bolinha')).toBeInTheDocument()
     expect(screen.getByText('Max')).toBeInTheDocument()
 
+    // Abrir o collapsible de filtros
+    const filtrosButton = screen.getByRole('button', { name: /filtros/i })
+    await user.click(filtrosButton)
+
     // Abrir o select de raça (encontrar pelo texto do placeholder)
-    const racaSelect = screen.getByText('Todas as raças').closest('button')
+    const racaSelect = await screen.findByText('Todas as raças')
     expect(racaSelect).toBeInTheDocument()
     await user.click(racaSelect!)
 
@@ -251,10 +264,19 @@ describe('PetsLista', () => {
       expect(screen.queryByText('Carregando pets...')).not.toBeInTheDocument()
     })
 
+    expect(screen.getByText('Bolinha')).toBeInTheDocument()
+    expect(screen.getByText('Max')).toBeInTheDocument()
+    expect(screen.getByText('Mia')).toBeInTheDocument()
+
+    // Abrir o collapsible de filtros
+    const filtrosButton = screen.getByRole('button', { name: /filtros/i })
+    await user.click(filtrosButton)
+
     // Abrir o select de idade (encontrar pelo texto do placeholder)
-    const idadeSelect = screen.getByText('Todas as idades').closest('button')
-    expect(idadeSelect).toBeInTheDocument()
-    await user.click(idadeSelect!)
+    const idadeSelect = await screen.findByText('Todas as idades')
+    const idadeSelectButton = idadeSelect.closest('button')
+    expect(idadeSelectButton).toBeInTheDocument()
+    await user.click(idadeSelectButton!)
 
     // Selecionar 3 anos
     const idadeOption = await screen.findByText('3 anos')
@@ -290,10 +312,19 @@ describe('PetsLista', () => {
       expect(screen.queryByText('Carregando pets...')).not.toBeInTheDocument()
     })
 
+    expect(screen.getByText('Bolinha')).toBeInTheDocument()
+    expect(screen.getByText('Max')).toBeInTheDocument()
+    expect(screen.getByText('Rex')).toBeInTheDocument()
+
+    // Abrir o collapsible de filtros
+    const filtrosButton = screen.getByRole('button', { name: /filtros/i })
+    await user.click(filtrosButton)
+
     // Aplicar filtro de raça (encontrar pelo texto do placeholder)
-    const racaSelect = screen.getByText('Todas as raças').closest('button')
-    expect(racaSelect).toBeInTheDocument()
-    await user.click(racaSelect!)
+    const racaSelect = await screen.findByText('Todas as raças')
+    const racaSelectButton = racaSelect.closest('button')
+    expect(racaSelectButton).toBeInTheDocument()
+    await user.click(racaSelectButton!)
     const labradorOption = await screen.findByText('Labrador')
     await user.click(labradorOption)
 
@@ -536,8 +567,15 @@ describe('PetsLista', () => {
       expect(screen.queryByText('Carregando pets...')).not.toBeInTheDocument()
     })
 
+    expect(screen.getByText('Max')).toBeInTheDocument()
+    expect(screen.getByText('Rex')).toBeInTheDocument()
+
+    // Abrir o collapsible de filtros
+    const filtrosButton = screen.getByRole('button', { name: /filtros/i })
+    await user.click(filtrosButton)
+
     // Buscar por um nome que não existe
-    const searchInput = screen.getByPlaceholderText('Buscar por nome...')
+    const searchInput = await screen.findByPlaceholderText('Buscar por nome...')
     await user.type(searchInput, 'NomeInexistente')
 
     // Verificar mensagem de nenhum resultado

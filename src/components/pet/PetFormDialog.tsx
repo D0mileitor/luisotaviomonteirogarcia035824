@@ -18,7 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { createPet, updatePet, uploadPetPhoto, deletePetPhoto, type Pet, type CreatePetData } from "@/api/pets"
+import { petsFacade } from "@/services/petFacade"
+import type { Pet, CreatePetData } from "@/api/pets"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload, X } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -45,7 +46,7 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
     },
   })
 
-  // Reset form when dialog opens/closes or pet changes
+  
   useEffect(() => {
     if (open && pet) {
       form.reset({
@@ -166,12 +167,12 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
 
       if (pet) {
         // Atualizar pet existente
-        savedPet = await updatePet(pet.id, sanitizedData)
+        savedPet = await petsFacade.updatePet(pet.id, sanitizedData)
         
         // Deletar foto se o usuário removeu
         if (photoRemoved && pet.foto?.id) {
           try {
-            await deletePetPhoto(pet.id, pet.foto.id)
+            await petsFacade.deletePetPhoto(pet.id, pet.foto.id)
             toast({
               title: "Sucesso",
               description: "Foto removida com sucesso!",
@@ -192,7 +193,7 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
         })
       } else {
         // Criar novo pet
-        savedPet = await createPet(sanitizedData)
+        savedPet = await petsFacade.createPet(sanitizedData)
         toast({
           title: "Sucesso",
           description: "Pet criado com sucesso!",
@@ -202,7 +203,7 @@ export function PetFormDialog({ open, onOpenChange, pet, onSuccess }: PetFormDia
       // Upload de foto se houver
       if (selectedFile && savedPet.id) {
         try {
-          await uploadPetPhoto(savedPet.id, selectedFile)
+          await petsFacade.uploadPetPhoto(savedPet.id, selectedFile)
           toast({
             title: "Sucesso",
             description: "Foto enviada com sucesso!",

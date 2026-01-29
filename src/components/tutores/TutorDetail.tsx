@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { getTutorById, vincularPet, desvincularPet, type Tutor } from "@/api/tutores"
-import { getPets, type Pet } from "@/api/pets"
+import { tutoresFacade } from "@/services/tutoresFacade"
+import { petsFacade } from "@/services/petFacade"
+import type { Tutor } from "@/api/tutores"
+import type { Pet } from "@/api/pets"
 import {
   Card,
   CardContent
@@ -48,7 +50,7 @@ export default function TutorDetail() {
 
     setLoading(true)
     try {
-      const data = await getTutorById(Number(id))
+      const data = await tutoresFacade.getTutorById(Number(id))
       setTutor(data)
     } catch (error) {
       console.error("Erro ao carregar tutor:", error)
@@ -90,7 +92,8 @@ export default function TutorDetail() {
   const handleOpenVincularDialog = async () => {
     try {
       // Carregar todos os pets disponíveis
-      const petsData = await getPets(0, 100) // Carregar uma quantidade maior
+      await petsFacade.loadPets(0, 100) // Carregar uma quantidade maior
+      const petsData = petsFacade.pets$.value
       
       // Filtrar pets que já estão vinculados a este tutor
       const vinculadosIds = tutor?.pets?.map(p => p.id) || []
@@ -114,7 +117,7 @@ export default function TutorDetail() {
 
     setIsVinculando(true)
     try {
-      await vincularPet(tutor.id, Number(selectedPetId))
+      await tutoresFacade.vincularPet(tutor.id, Number(selectedPetId))
       toast({
         title: "Sucesso",
         description: "Pet vinculado com sucesso!",
@@ -139,7 +142,7 @@ export default function TutorDetail() {
     if (!confirm("Tem certeza que deseja desvincular este pet?")) return
 
     try {
-      await desvincularPet(tutor.id, petId)
+      await tutoresFacade.desvincularPet(tutor.id, petId)
       toast({
         title: "Sucesso",
         description: "Pet desvinculado com sucesso!",

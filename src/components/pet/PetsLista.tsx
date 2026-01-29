@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react"
-import { getPets } from "@/api/pets"
+import { petsFacade } from "@/services/petFacade"
 import type { Pet } from "@/api/pets"
 import { PetCard } from "@/components/pet/PetCard"
 import { Input } from "@/components/ui/input"
@@ -41,31 +41,31 @@ export default function PetsLista() {
   const [idadeFiltro, setIdadeFiltro] = useState<string>("")
 
   useEffect(() => {
-    async function loadPets() {
-      setLoading(true)
+  }, [page])
 
-      try {
-        const data = await getPets(page, ITEMS_PER_PAGE)
+  useEffect(() => {
+    const sub = petsFacade.pets$.subscribe((data) => {
+      setPets(data.content)
+      setPageCount(data.pageCount)
+      setLoading(false)
+    })
 
-        setPets(data.content)
-        setPageCount(data.pageCount)
-      } catch (error) {
-        console.error(error)
-        alert("Erro ao carregar pets")
-      } finally {
-        setLoading(false)
-      }
-    }
+    return () => sub.unsubscribe()
+  }, [])
 
-    loadPets()
+  useEffect(() => {
+    setLoading(true)
+    petsFacade.loadPets(page, ITEMS_PER_PAGE).catch((err) => {
+      console.error(err)
+      alert("Erro ao carregar pets")
+      setLoading(false)
+    })
   }, [page])
 
   const handleCreateSuccess = async () => {
     // Recarregar a lista de pets após criar um novo
     try {
-      const data = await getPets(page, ITEMS_PER_PAGE)
-      setPets(data.content)
-      setPageCount(data.pageCount)
+      await petsFacade.loadPets(page, ITEMS_PER_PAGE)
     } catch (error) {
       console.error("Erro ao recarregar pets:", error)
     }
